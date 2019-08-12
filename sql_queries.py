@@ -10,34 +10,34 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 # FACT
 songplay_table_create = ("""CREATE TABLE IF NOT EXISTS songplays(
                                 songplay_id SERIAL PRIMARY KEY,
-                                start_time bigint,
-                                user_id varchar,
-                                level varchar,
-                                artist_id varchar,
-                                song_id varchar,
-                                session_id int,
-                                location text,
-                                user_agent text)""")
+                                start_time bigint NOT NULL,
+                                user_id varchar NOT NULL,
+                                level varchar NOT NULL,
+                                artist_id varchar REFERENCES artists ON DELETE RESTRICT,
+                                song_id varchar REFERENCES songs ON DELETE RESTRICT,
+                                session_id int NOT NULL,
+                                location text NOT NULL,
+                                user_agent text NOT NULL)""")
 
 # DIMENTION
 user_table_create = ("""CREATE TABLE IF NOT EXISTS users(
                             user_id varchar PRIMARY KEY,
                             first_name varchar, 
                             last_name varchar, 
-                            gender varchar,
-                            level varchar)""")
+                            gender varchar NOT NULL,
+                            level varchar NOT NULL)""")
 
 song_table_create = ("""CREATE TABLE IF NOT EXISTS songs(
                             song_id varchar PRIMARY KEY,
                             title varchar,
-                            artist_id varchar,
-                            year int,
-                            duration float)""")
+                            artist_id varchar NOT NULL,
+                            year int NOT NULL,
+                            duration float NOT NULL)""")
 
 artist_table_create = ("""CREATE TABLE IF NOT EXISTS artists(
                               artist_id varchar PRIMARY KEY, 
                               name varchar, 
-                              location varchar, 
+                              location varchar NOT NULL, 
                               latitude float, 
                               longitude float)""")
 
@@ -70,10 +70,7 @@ user_table_insert = ("""INSERT INTO users(
                             level)
                         VALUES(%s,%s,%s,%s,%s)
                         ON CONFLICT(user_id) DO UPDATE
-                        SET first_name = excluded.first_name,
-                            last_name = excluded.last_name,
-                            gender = excluded.gender,
-                            level = excluded.level""")
+                        SET level = EXCLUDED.level""")
 
 song_table_insert = ("""INSERT INTO songs(
                             song_id, 
@@ -81,7 +78,8 @@ song_table_insert = ("""INSERT INTO songs(
                             artist_id, 
                             year, 
                             duration)
-                        VALUES(%s,%s,%s,%s,%s)""")
+                        VALUES(%s,%s,%s,%s,%s)
+                        ON CONFLICT (song_id) DO NOTHING""")
 
 artist_table_insert = ("""INSERT INTO artists(
                               artist_id,
@@ -90,8 +88,7 @@ artist_table_insert = ("""INSERT INTO artists(
                               latitude,
                               longitude)
                            VALUES(%s,%s,%s,%s,%s)
-                           ON CONFLICT (artist_id)
-                           DO NOTHING""")
+                           ON CONFLICT (artist_id) DO NOTHING""")
 
 time_table_insert = ("""INSERT INTO time(
                               start_time,
@@ -102,8 +99,7 @@ time_table_insert = ("""INSERT INTO time(
                               year,
                               weekday)
                            VALUES(%s,%s,%s,%s,%s,%s,%s)
-                           ON CONFLICT (start_time) 
-                           DO NOTHING""")
+                           ON CONFLICT (start_time) DO NOTHING""")
 
 # Query the song_id and the artist_id
 # title, name and duration are input parameters
@@ -116,5 +112,5 @@ song_select = ("""SELECT s.song_id, a.artist_id
 
 # QUERY LISTS
 
-create_table_queries = [songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
-drop_table_queries = [songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
+create_table_queries = [user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
+drop_table_queries = [user_table_drop, song_table_drop, artist_table_drop, time_table_drop, songplay_table_drop]

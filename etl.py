@@ -6,6 +6,14 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
+    """ 
+    Extract a record in a single song JSON file, and insert to the songs and artists table 
+    Parameters: 
+        cur: a cursor that allow Python ocde to execute PostgreSQL command for the connnection
+        filepath: a file path indicating one of the JSON song_data files
+    Returns: 
+        NONE
+    """
     # open song file
     df = pd.read_json(filepath, lines=True)
 
@@ -19,6 +27,15 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+    """ 
+    Extract multiple records in a single log JSON file, filter and transform some values, 
+    and insert to the songplays, time and users table 
+    Parameters: 
+        cur: a cursor that allow Python ocde to execute PostgreSQL command for the connnection
+        filepath: a file path indicating one of the log JSON files
+    Returns: 
+        NONE
+    """
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -69,6 +86,17 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+    """ 
+    Operationlize the ETL pipeline by firstly identifying all matching files in the directory 
+    specified by a file path,  and then by iteratively processing the records through all of these files
+    Parameters: 
+        cur: a cursor that allow Python ocde to execute PostgreSQL command for the connnection
+        conn: a connection to the original database
+        filepath: a file path indicating one of the log JSON files
+        func: the function that specifies how the data will be processed
+    Returns: 
+        NONE
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
